@@ -285,54 +285,54 @@ def generate_visualizations(df):
     # -----------------------------------------------------
     # Figure 1: Cost vs. Weight by Mode (Log-Log / Scatter with trendlines)
     # -----------------------------------------------------
-    fig, ax = plt.subplots(figsize=(10, 6), dpi=300)
+    fig, ax = plt.subplots(figsize=(9, 5.2), dpi=160)
     for mode, color in palette_modes.items():
         subset = df[df['Transport_Mode'] == mode]
         ax.scatter(subset['Shipment_Weight_KG'], subset['Transportation_Cost_USD'], 
-                   alpha=0.45, label=mode, color=color, edgecolors='none', s=24)
+                   alpha=0.45, label=mode, color=color, edgecolors='none', s=20)
         
         # Fit polynomial trendline in log space
         z = np.polyfit(np.log10(subset['Shipment_Weight_KG']), np.log10(subset['Transportation_Cost_USD']), 1)
         p = np.poly1d(z)
         x_trend = np.linspace(subset['Shipment_Weight_KG'].min(), subset['Shipment_Weight_KG'].max(), 100)
         y_trend = 10**p(np.log10(x_trend))
-        ax.plot(x_trend, y_trend, color=color, linewidth=2.5, linestyle='--')
+        ax.plot(x_trend, y_trend, color=color, linewidth=2.2, linestyle='--')
         
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_title("Figure 1: Transportation Cost ($) vs. Shipment Weight (KG) across Transport Modes", fontsize=13, fontweight='bold', pad=12)
-    ax.set_xlabel("Shipment Weight (KG) - Log Scale", fontsize=11, fontweight='semibold')
-    ax.set_ylabel("Transportation Cost ($ USD) - Log Scale", fontsize=11, fontweight='semibold')
-    ax.legend(title="Transport Mode", frameon=True, facecolor='white', framealpha=0.9, fontsize=9.5)
+    ax.set_title("Figure 1: Transportation Cost ($) vs. Shipment Weight (KG) across Transport Modes", fontsize=11, fontweight='bold', pad=10)
+    ax.set_xlabel("Shipment Weight (KG) - Log Scale", fontsize=10, fontweight='semibold')
+    ax.set_ylabel("Transportation Cost ($ USD) - Log Scale", fontsize=10, fontweight='semibold')
+    ax.legend(title="Transport Mode", frameon=True, facecolor='white', framealpha=0.9, fontsize=8.5)
     ax.grid(True, which="both", ls=":", alpha=0.6)
     plt.tight_layout()
     f1_path = os.path.join(CHARTS_DIR, "fig1_cost_vs_weight_by_mode.png")
-    fig.savefig(f1_path, dpi=300)
+    fig.savefig(f1_path, dpi=160)
     plt.close(fig)
     chart_paths['fig1'] = f1_path
     
     # -----------------------------------------------------
     # Figure 2: Lead Time Distribution (Violin & Box Plot)
     # -----------------------------------------------------
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5.5), dpi=300)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.8), dpi=160)
     
-    sns.violinplot(data=df, x='Transport_Mode', y='Actual_Lead_Time_Days', ax=ax1, 
-                   palette=['#93c5fd', '#fdba74', '#fca5a5', '#86efac'], inner='quartile', cut=0)
-    ax1.set_title("A) Actual Lead Time Distribution by Mode", fontsize=11, fontweight='bold')
-    ax1.set_xlabel("Transport Mode", fontsize=10, fontweight='semibold')
-    ax1.set_ylabel("Actual Transit Time (Days)", fontsize=10, fontweight='semibold')
+    sns.violinplot(data=df, x='Transport_Mode', y='Actual_Lead_Time_Days', hue='Transport_Mode', ax=ax1, 
+                   palette=['#93c5fd', '#fdba74', '#fca5a5', '#86efac'], inner='quartile', cut=0, legend=False)
+    ax1.set_title("A) Actual Lead Time Distribution by Mode", fontsize=10, fontweight='bold')
+    ax1.set_xlabel("Transport Mode", fontsize=9, fontweight='semibold')
+    ax1.set_ylabel("Actual Transit Time (Days)", fontsize=9, fontweight='semibold')
     
-    sns.boxplot(data=df, x='Carrier', y='Delay_Days', ax=ax2, palette='Blues_r', showmeans=True,
-                meanprops={"marker":"o","markerfacecolor":"red", "markeredgecolor":"red", "markersize":"5"})
-    ax2.set_title("B) Delay Days Distribution by Carrier (Red Dot = Mean)", fontsize=11, fontweight='bold')
-    ax2.set_xlabel("Carrier Name", fontsize=10, fontweight='semibold')
-    ax2.set_ylabel("Delivery Delay (Days)", fontsize=10, fontweight='semibold')
-    ax2.set_xticklabels(ax2.get_xticklabels(), rotation=15)
+    sns.boxplot(data=df, x='Carrier', y='Delay_Days', hue='Carrier', ax=ax2, palette='Blues_r', showmeans=True,
+                meanprops={"marker":"o","markerfacecolor":"red", "markeredgecolor":"red", "markersize":"5"}, legend=False)
+    ax2.set_title("B) Delay Days Distribution by Carrier (Red Dot = Mean)", fontsize=10, fontweight='bold')
+    ax2.set_xlabel("Carrier Name", fontsize=9, fontweight='semibold')
+    ax2.set_ylabel("Delivery Delay (Days)", fontsize=9, fontweight='semibold')
+    ax2.tick_params(axis='x', rotation=15)
     
-    fig.suptitle("Figure 2: Lead Time and Delay Variance Across Modes and Carriers", fontsize=13, fontweight='bold', y=1.02)
+    fig.suptitle("Figure 2: Lead Time and Delay Variance Across Modes and Carriers", fontsize=11.5, fontweight='bold', y=1.02)
     plt.tight_layout()
     f2_path = os.path.join(CHARTS_DIR, "fig2_delivery_lead_time_distribution.png")
-    fig.savefig(f2_path, dpi=300)
+    fig.savefig(f2_path, dpi=160)
     plt.close(fig)
     chart_paths['fig2'] = f2_path
 
@@ -345,42 +345,41 @@ def generate_visualizations(df):
         Cost_Ton_KM=('Cost_per_Ton_KM', 'mean')
     ).reset_index().sort_values('OTIF', ascending=False)
     
-    fig, ax1 = plt.subplots(figsize=(10, 5.5), dpi=300)
+    fig, ax1 = plt.subplots(figsize=(9, 4.8), dpi=160)
     
     x = np.arange(len(carrier_stats))
     width = 0.38
     
     bars1 = ax1.bar(x - width/2, carrier_stats['OTIF'], width, label='OTIF Rate (%)', color='#1e40af', edgecolor='none')
-    ax1.set_ylabel('OTIF Rate (%)', color='#1e40af', fontsize=11, fontweight='bold')
+    ax1.set_ylabel('OTIF Rate (%)', color='#1e40af', fontsize=10, fontweight='bold')
     ax1.set_ylim(50, 100)
     ax1.tick_params(axis='y', labelcolor='#1e40af')
     ax1.axhline(85, color='#991b1b', linestyle='--', linewidth=1.2, label='Target SLA (85%)')
     
     ax2 = ax1.twinx()
     bars2 = ax2.bar(x + width/2, carrier_stats['Avg_Delay'], width, label='Avg Delay (Days)', color='#f97316', edgecolor='none')
-    ax2.set_ylabel('Average Delay (Days)', color='#c2410c', fontsize=11, fontweight='bold')
+    ax2.set_ylabel('Average Delay (Days)', color='#c2410c', fontsize=10, fontweight='bold')
     ax2.set_ylim(0, 2.5)
     ax2.tick_params(axis='y', labelcolor='#c2410c')
     
     ax1.set_xticks(x)
-    ax1.set_xticklabels(carrier_stats['Carrier'], fontsize=10, fontweight='semibold')
-    ax1.set_title("Figure 3: Carrier OTIF Fulfillment vs. Average Delay Days", fontsize=13, fontweight='bold', pad=12)
+    ax1.set_xticklabels(carrier_stats['Carrier'], fontsize=9, fontweight='semibold')
+    ax1.set_title("Figure 3: Carrier OTIF Fulfillment vs. Average Delay Days", fontsize=11.5, fontweight='bold', pad=10)
     
-    # Add value labels
     for bar in bars1:
         yval = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width()/2, yval + 1.0, f"{yval:.1f}%", ha='center', va='bottom', fontsize=8.5, fontweight='bold')
+        ax1.text(bar.get_x() + bar.get_width()/2, yval + 1.0, f"{yval:.1f}%", ha='center', va='bottom', fontsize=8, fontweight='bold')
     for bar in bars2:
         yval = bar.get_height()
-        ax2.text(bar.get_x() + bar.get_width()/2, yval + 0.05, f"{yval:.2f}d", ha='center', va='bottom', fontsize=8.5, fontweight='bold')
+        ax2.text(bar.get_x() + bar.get_width()/2, yval + 0.05, f"{yval:.2f}d", ha='center', va='bottom', fontsize=8, fontweight='bold')
         
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right', frameon=True, facecolor='white')
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right', frameon=True, facecolor='white', fontsize=8.5)
     
     plt.tight_layout()
     f3_path = os.path.join(CHARTS_DIR, "fig3_otif_and_carrier_scorecard.png")
-    fig.savefig(f3_path, dpi=300)
+    fig.savefig(f3_path, dpi=160)
     plt.close(fig)
     chart_paths['fig3'] = f3_path
 
@@ -391,29 +390,29 @@ def generate_visualizations(df):
     delay_df.columns = ['Reason', 'Count']
     delay_df['Cum_Percentage'] = (delay_df['Count'].cumsum() / delay_df['Count'].sum()) * 100
     
-    fig, ax1 = plt.subplots(figsize=(10, 5.5), dpi=300)
+    fig, ax1 = plt.subplots(figsize=(9, 4.8), dpi=160)
     
     bars = ax1.bar(delay_df['Reason'], delay_df['Count'], color='#3b82f6', width=0.55, edgecolor='black', linewidth=0.5)
-    ax1.set_ylabel('Incident Count (Shipments)', fontsize=11, fontweight='semibold', color='#1e3a8a')
+    ax1.set_ylabel('Incident Count (Shipments)', fontsize=10, fontweight='semibold', color='#1e3a8a')
     ax1.tick_params(axis='y', labelcolor='#1e3a8a')
-    ax1.set_xticklabels(delay_df['Reason'], rotation=15, ha='right', fontsize=9.5)
+    ax1.tick_params(axis='x', rotation=15)
     
     ax2 = ax1.twinx()
-    line = ax2.plot(delay_df['Reason'], delay_df['Cum_Percentage'], color='#dc2626', marker='D', linewidth=2.2, label='Cumulative %')
-    ax2.set_ylabel('Cumulative Percentage (%)', fontsize=11, fontweight='semibold', color='#991b1b')
+    line = ax2.plot(delay_df['Reason'], delay_df['Cum_Percentage'], color='#dc2626', marker='D', linewidth=2.0, label='Cumulative %')
+    ax2.set_ylabel('Cumulative Percentage (%)', fontsize=10, fontweight='semibold', color='#991b1b')
     ax2.set_ylim(0, 110)
     ax2.tick_params(axis='y', labelcolor='#991b1b')
     ax2.axhline(80, color='#6b7280', linestyle=':', linewidth=1.5, label='80% Pareto Cutoff')
     
     for i, (count, cum_pct) in enumerate(zip(delay_df['Count'], delay_df['Cum_Percentage'])):
-        ax1.text(i, count + 8, f"{count:,}", ha='center', va='bottom', fontsize=8.5, fontweight='bold')
-        ax2.text(i, cum_pct + 2.5, f"{cum_pct:.1f}%", ha='center', va='bottom', color='#991b1b', fontsize=8.5, fontweight='bold')
+        ax1.text(i, count + 8, f"{count:,}", ha='center', va='bottom', fontsize=8, fontweight='bold')
+        ax2.text(i, cum_pct + 2.5, f"{cum_pct:.1f}%", ha='center', va='bottom', color='#991b1b', fontsize=8, fontweight='bold')
         
-    ax1.set_title("Figure 4: Pareto Chart of Primary Root Causes for Delivery Delays", fontsize=13, fontweight='bold', pad=12)
-    ax2.legend(loc='lower right', frameon=True, facecolor='white')
+    ax1.set_title("Figure 4: Pareto Chart of Primary Root Causes for Delivery Delays", fontsize=11.5, fontweight='bold', pad=10)
+    ax2.legend(loc='lower right', frameon=True, facecolor='white', fontsize=8.5)
     plt.tight_layout()
     f4_path = os.path.join(CHARTS_DIR, "fig4_delay_root_cause_pareto.png")
-    fig.savefig(f4_path, dpi=300)
+    fig.savefig(f4_path, dpi=160)
     plt.close(fig)
     chart_paths['fig4'] = f4_path
 
@@ -425,16 +424,16 @@ def generate_visualizations(df):
                  'Expected_Lead_Time_Days', 'Actual_Lead_Time_Days', 'Delay_Days', 'OTIF_Flag']
     corr = df[corr_cols].corr()
     
-    fig, ax = plt.subplots(figsize=(9.5, 7.5), dpi=300)
+    fig, ax = plt.subplots(figsize=(8.5, 6.5), dpi=160)
     sns.heatmap(corr, annot=True, fmt=".2f", cmap='coolwarm', vmin=-1, vmax=1, 
                 cbar_kws={'label': 'Pearson Correlation Coefficient (r)'},
-                linewidths=0.75, linecolor='white', ax=ax, annot_kws={"size": 8.5, "weight": "semibold"})
-    ax.set_title("Figure 5: Correlation Matrix of Key Operational and Financial Logistics Metrics", fontsize=12.5, fontweight='bold', pad=14)
-    plt.xticks(rotation=45, ha='right', fontsize=9)
-    plt.yticks(rotation=0, fontsize=9)
+                linewidths=0.75, linecolor='white', ax=ax, annot_kws={"size": 8, "weight": "semibold"})
+    ax.set_title("Figure 5: Correlation Matrix of Key Operational and Financial Logistics Metrics", fontsize=11, fontweight='bold', pad=12)
+    plt.xticks(rotation=45, ha='right', fontsize=8)
+    plt.yticks(rotation=0, fontsize=8)
     plt.tight_layout()
     f5_path = os.path.join(CHARTS_DIR, "fig5_correlation_heatmap.png")
-    fig.savefig(f5_path, dpi=300)
+    fig.savefig(f5_path, dpi=160)
     plt.close(fig)
     chart_paths['fig5'] = f5_path
 
@@ -451,26 +450,26 @@ def generate_visualizations(df):
     
     top_lanes = lane_agg.sort_values('Shipments', ascending=False).head(15)
     
-    fig, ax = plt.subplots(figsize=(11, 6), dpi=300)
+    fig, ax = plt.subplots(figsize=(9.5, 5.2), dpi=160)
     scatter = ax.scatter(top_lanes['Mean_Cost_Ton_KM'], top_lanes['OTIF_Rate'], 
-                         s=top_lanes['Shipments']*4, c=top_lanes['Mean_Distance'], 
-                         cmap='viridis', alpha=0.8, edgecolors='black', linewidth=1)
+                         s=top_lanes['Shipments']*3.5, c=top_lanes['Mean_Distance'], 
+                         cmap='viridis', alpha=0.8, edgecolors='black', linewidth=0.8)
     
     cbar = plt.colorbar(scatter, ax=ax)
-    cbar.set_label('Average Distance (KM)', fontsize=10, fontweight='semibold')
+    cbar.set_label('Average Distance (KM)', fontsize=9, fontweight='semibold')
     
     for _, row in top_lanes.iterrows():
         ax.annotate(row['Lane'], (row['Mean_Cost_Ton_KM'], row['OTIF_Rate']),
-                    xytext=(5, 4), textcoords='offset points', fontsize=8, fontweight='semibold')
+                    xytext=(4, 3), textcoords='offset points', fontsize=7.5, fontweight='semibold')
         
     ax.axhline(85, color='red', linestyle='--', alpha=0.7, label='Target OTIF (85%)')
-    ax.set_title("Figure 6: Route Efficiency Matrix (Cost per Ton-KM vs. OTIF Rate, Bubble Size = Volume)", fontsize=12.5, fontweight='bold', pad=12)
-    ax.set_xlabel("Unit Cost ($ / Ton-KM)", fontsize=10.5, fontweight='semibold')
-    ax.set_ylabel("On-Time In-Full (OTIF) Rate (%)", fontsize=10.5, fontweight='semibold')
-    ax.legend(loc='lower left', frameon=True, facecolor='white')
+    ax.set_title("Figure 6: Route Efficiency Matrix (Cost per Ton-KM vs. OTIF Rate, Bubble Size = Volume)", fontsize=11, fontweight='bold', pad=10)
+    ax.set_xlabel("Unit Cost ($ / Ton-KM)", fontsize=9.5, fontweight='semibold')
+    ax.set_ylabel("On-Time In-Full (OTIF) Rate (%)", fontsize=9.5, fontweight='semibold')
+    ax.legend(loc='lower left', frameon=True, facecolor='white', fontsize=8.5)
     plt.tight_layout()
     f6_path = os.path.join(CHARTS_DIR, "fig6_route_cost_efficiency_matrix.png")
-    fig.savefig(f6_path, dpi=300)
+    fig.savefig(f6_path, dpi=160)
     plt.close(fig)
     chart_paths['fig6'] = f6_path
 
@@ -485,28 +484,28 @@ def generate_visualizations(df):
         OTIF_Rate=('OTIF_Flag', lambda x: x.mean() * 100)
     ).reset_index().sort_values('Month_Num')
     
-    fig, ax1 = plt.subplots(figsize=(11, 5.5), dpi=300)
+    fig, ax1 = plt.subplots(figsize=(9.5, 4.8), dpi=160)
     
     x = np.arange(len(monthly))
     bars = ax1.bar(x, monthly['Total_Volume_M3'], color='#94a3b8', alpha=0.65, width=0.55, label='Total Volume (m³)')
-    ax1.set_ylabel('Total Freight Volume (m³)', color='#334155', fontsize=11, fontweight='semibold')
+    ax1.set_ylabel('Total Freight Volume (m³)', color='#334155', fontsize=10, fontweight='semibold')
     ax1.set_xticks(x)
-    ax1.set_xticklabels(monthly['Month'], fontsize=10, fontweight='semibold')
+    ax1.set_xticklabels(monthly['Month'], fontsize=9, fontweight='semibold')
     
     ax2 = ax1.twinx()
-    line1 = ax2.plot(x, monthly['OTIF_Rate'], color='#dc2626', marker='s', linewidth=2.2, label='OTIF Rate (%)')
-    ax2.set_ylabel('OTIF Fulfillment Rate (%)', color='#991b1b', fontsize=11, fontweight='semibold')
+    line1 = ax2.plot(x, monthly['OTIF_Rate'], color='#dc2626', marker='s', linewidth=2.0, label='OTIF Rate (%)')
+    ax2.set_ylabel('OTIF Fulfillment Rate (%)', color='#991b1b', fontsize=10, fontweight='semibold')
     ax2.set_ylim(60, 100)
     
-    ax1.set_title("Figure 7: Monthly Freight Volume vs. Service OTIF Reliability (Seasonal Impact)", fontsize=13, fontweight='bold', pad=12)
+    ax1.set_title("Figure 7: Monthly Freight Volume vs. Service OTIF Reliability (Seasonal Impact)", fontsize=11.5, fontweight='bold', pad=10)
     
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower left', frameon=True, facecolor='white')
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower left', frameon=True, facecolor='white', fontsize=8.5)
     
     plt.tight_layout()
     f7_path = os.path.join(CHARTS_DIR, "fig7_monthly_volume_and_cost_trend.png")
-    fig.savefig(f7_path, dpi=300)
+    fig.savefig(f7_path, dpi=160)
     plt.close(fig)
     chart_paths['fig7'] = f7_path
     
